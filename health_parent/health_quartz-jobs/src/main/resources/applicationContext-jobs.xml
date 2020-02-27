@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                  http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+    <!--开启注解配置支持，否则在ClearImgJob不能使用@Autowired-->
+    <!--   方式一 -->
+    <!--    <context:annotation-config></context:annotation-config>-->
+    <!--方式二-->
+    <context:component-scan base-package="com.itheima.health"></context:component-scan>
+    <!-- 1. 注册自定义Job  自己写的类-->
+    <bean id="jobDemo" class="com.itheima.health.job.ClearImgJob"></bean>
+
+    <!-- 2：注册 JobDetail对象, 作用是负责通过反射调用指定的Job，注入目标对象，注入目标方法 -->
+    <bean id="jobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <!-- 注入目标对象 -->
+        <property name="targetObject" ref="jobDemo"/>
+        <!-- 注入目标方法 -->
+        <property name="targetMethod" value="clearImg"/>
+    </bean>
+
+    <!-- 3：注册一个触发器（1.定时触发器CronTriggerFactoryBean     2.频率触发器 SimpleTriggerFactoryBean ），指定任务触发的时间 ，一般使用定时触发器-->
+    <bean id="myTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <!-- 注入JobDetail对象 -->
+        <property name="jobDetail" ref="jobDetail"/>
+        <!-- 指定触发的时间，基于Cron表达式（0/10表示从0秒开始，每10秒执行一次） -->
+        <property name="cronExpression">
+            <value>0 0 4 * * ?</value>
+        </property>
+    </bean>
+
+    <!-- 4：注册一个统一的调度工厂，通过这个调度工厂调度任务 -->
+    <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <!-- 注入多个触发器 -->
+        <property name="triggers">
+            <list>
+                <ref bean="myTrigger"/>
+            </list>
+        </property>
+    </bean>
+
+</beans>

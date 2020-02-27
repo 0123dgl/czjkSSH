@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                     http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--数据源-->
+    <bean id="dataSource"
+          class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <property name="username" value="root"/>
+        <property name="password" value="123456"/>
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url"
+                  value="jdbc:mysql://192.168.119.128:3306/itcasthealth?useUnicode=true&amp;characterEncoding=UTF-8"/>
+    </bean>
+    <!--spring和mybatis整合的工厂bean-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <!-- 加载mybatis的外部配置文件 -->
+        <!--        <property name="configLocation" value="classpath:sqlMapConfig.xml"/>-->
+        <!-- 配置别名 -->
+        <property name="typeAliasesPackage" value="com.itheima.health.pojo"></property>
+        <!-- 在spring中配置mybatis分页插件  也可以通过引入mybatis外部配置文件的方式配置分页插件 -->
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageHelper">
+                    <property name="properties">
+                        <props>
+                            <!-- 设置数据库类型 Oracle,Mysql,MariaDB,SQLite,Hsqldb,PostgreSQL 六种数据库-->
+                            <prop key="dialect">mysql</prop>
+                        </props>
+                    </property>
+                </bean>
+            </array>
+        </property>
+    </bean>
+    <!--批量扫描接口生成代理对象-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--指定接口所在的包-->
+        <property name="basePackage" value="com.itheima.health.dao"/>
+    </bean>
+</beans>
