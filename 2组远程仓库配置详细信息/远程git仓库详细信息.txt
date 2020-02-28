@@ -1,0 +1,3 @@
+远端名称：0123dgl-czjkSSH  （可以自己命名）
+远程仓库地址：git@github.com:0123dgl/czjkSSH.git（定死了，不可以修改）
+私钥都在资料里面，自己配置
